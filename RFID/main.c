@@ -3,6 +3,7 @@
 #define BAUD_TOL 2
 
 
+
 #include <stdio.h>
 #include <avr/io.h>
 #include "stdio_setup.h"
@@ -12,8 +13,10 @@
 #include "mfrc522/mfrc522.h"
 #include "lcd/lcd.h"
 
+
 int main()
 {
+	uint8_t card[8] = {208, 166, 96, 37, 51, 0, 0, 0};
 	UartInit();
 	char buffer[150];
 	uint8_t byte;
@@ -62,21 +65,29 @@ int main()
 		
 		if(byte == CARD_FOUND)
 		{
-			int test = 0;
+			int position = 0;
 			byte = mfrc522_get_card_serial(str);
 			if(byte == CARD_FOUND)
-			{
-				lcd_clrscr();
-				lcd_gotoxy(0,0);
-				lcd_puts("Authorized");
-				lcd_gotoxy(0,1);	
-				for(byte=0;byte<8;byte++)
+			{	
+				if (Validate_Card(&card, &str))
 				{					
-					printf("%i", str[byte]);
-					test += sprintf(&buffer[test], "%i", str[byte]);
-				}				
-				printf("\r\n");
-				lcd_puts(buffer);	
+					printf("Authorized\r\n");
+					for(byte=0;byte<8;byte++)
+					{
+						position += sprintf(&buffer[position], "%i", str[byte]);
+					}
+					lcd_clrscr();
+					lcd_gotoxy(0,0);
+					lcd_puts("Authorized");
+					lcd_gotoxy(0,1);
+					lcd_puts(buffer);
+				}
+				else
+				{
+					lcd_clrscr();
+					lcd_gotoxy(0,0);
+					lcd_puts("Unauthorized");
+				}						
 			}
 			else
 			{

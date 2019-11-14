@@ -22,6 +22,7 @@
  */
 #include "mfrc522.h"
 #include "../spi/spi.h"
+#define F_CPU 16000000ul
 
 void mfrc522_init()
 {
@@ -226,4 +227,14 @@ uint8_t mfrc522_get_card_serial(uint8_t * serial_out)
 		}
     }
     return status;
+}
+
+int Validate_Card (uint8_t *arr1, uint8_t *arr2)
+{		
+	for (int i = 0; i < 8; i++)	
+		if (arr1[i] != arr2[i])
+		{
+			return 0;
+		}		
+	return 1;
 }
