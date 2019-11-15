@@ -623,6 +623,7 @@ int main()
      4ce:	de bf       	out	0x3e, r29	; 62
      4d0:	0f be       	out	0x3f, r0	; 63
      4d2:	cd bf       	out	0x3d, r28	; 61
+	//Saved card
 	uint8_t card[8] = {208, 166, 96, 37, 51, 0, 0, 0};
      4d4:	88 e0       	ldi	r24, 0x08	; 8
      4d6:	ee e0       	ldi	r30, 0x0E	; 14
@@ -639,28 +640,30 @@ int main()
 	uint8_t byte;
 	uint8_t str[MAX_LEN];
 	
+	//Initialize the SPI configuration
 	spi_init();
      4e8:	fb d2       	rcall	.+1526   	; 0xae0 <spi_init>
-	/* initialize display, cursor on */
+	
+	//Initialize display, cursor on
 	lcd_init(LCD_DISP_ON);
      4ea:	8c e0       	ldi	r24, 0x0C	; 12
 
-	/* clear display and home cursor */
+	//Clear display and home cursor
 	lcd_clrscr();
      4ec:	a1 df       	rcall	.-190    	; 0x430 <lcd_init>
 	
-	//init reader
+	//Initialize the RFID reader
 	mfrc522_init();
      4ee:	7c df       	rcall	.-264    	; 0x3e8 <lcd_clrscr>
      4f0:	10 d1       	rcall	.+544    	; 0x712 <mfrc522_init>
 	
 	//check version of the reader
+	//Version numbers can be found in the Readme.
 	byte = mfrc522_read(VersionReg);
      4f2:	87 e3       	ldi	r24, 0x37	; 55
      4f4:	01 d1       	rcall	.+514    	; 0x6f8 <mfrc522_read>
      4f6:	80 39       	cpi	r24, 0x90	; 144
-	
-	//Version numbers can be found in the Readme.
+		
 	//Version number is read from the Version register as shown above.
 	switch (byte)
      4f8:	89 f1       	breq	.+98     	; 0x55c <main+0x9e>
@@ -747,7 +750,7 @@ int main()
      57c:	4a df       	rcall	.-364    	; 0x412 <lcd_puts>
 			lcd_puts("Detected");
      57e:	0f 2e       	mov	r0, r31
-     580:	f4 ef       	ldi	r31, 0xF4	; 244
+     580:	f3 ef       	ldi	r31, 0xF3	; 243
      582:	4f 2e       	mov	r4, r31
      584:	f2 e0       	ldi	r31, 0x02	; 2
 					lcd_puts("Unauthorized");
@@ -763,19 +766,20 @@ int main()
      58e:	2f 2e       	mov	r2, r31
      590:	f2 e0       	ldi	r31, 0x02	; 2
 			byte = mfrc522_get_card_serial(str);
-			if(byte == CARD_FOUND)
+			if(byte == CARD_FOUND) //The mcu checks again after getting more information about the card.
 			{	
-				if (Validate_Card(&card, &str))
+				if (Validate_Card(&card, &str)) //Validates the card read to the card saved.
 				{					
-					printf("Authorized\r\n ID:");
+					printf("Authorized\r\nID:");
      592:	3f 2e       	mov	r3, r31
      594:	f0 2d       	mov	r31, r0
      596:	0f 2e       	mov	r0, r31
-     598:	fb ec       	ldi	r31, 0xCB	; 203
+     598:	fa ec       	ldi	r31, 0xCA	; 202
      59a:	ef 2e       	mov	r14, r31
      59c:	f2 e0       	ldi	r31, 0x02	; 2
-					for(byte=0;byte<8;byte++)
+					for(byte=0;byte<8;byte++) //Convertes the value of the card to a char array so it can be printed to the LCD/Terminal.
 					{
+						//Takes the last position of where the char array and saves it in the position variable.
 						position += sprintf(&buffer[position], "%i", str[byte]);
      59e:	ff 2e       	mov	r15, r31
      5a0:	f0 2d       	mov	r31, r0
@@ -833,6 +837,7 @@ int main()
 	}
 	
 	while(1){
+		//The mcu checks to se if a card is found.
 		byte = mfrc522_request(PICC_REQALL,str);		
      5f2:	7f 4f       	sbci	r23, 0xFF	; 255
      5f4:	82 e5       	ldi	r24, 0x52	; 82
@@ -843,20 +848,20 @@ int main()
      5fc:	68 c0       	rjmp	.+208    	; 0x6ce <main+0x210>
      5fe:	ce 01       	movw	r24, r28
      600:	81 56       	subi	r24, 0x61	; 97
-		{
-			int position = 0;
+		{			
+			int position = 0; //Defines the position in the char array that the byte will be writen to.			
 			byte = mfrc522_get_card_serial(str);
      602:	9f 4f       	sbci	r25, 0xFF	; 255
      604:	eb d1       	rcall	.+982    	; 0x9dc <mfrc522_get_card_serial>
      606:	81 30       	cpi	r24, 0x01	; 1
      608:	09 f0       	breq	.+2      	; 0x60c <main+0x14e>
      60a:	5b c0       	rjmp	.+182    	; 0x6c2 <main+0x204>
-			if(byte == CARD_FOUND)
+			if(byte == CARD_FOUND) //The mcu checks again after getting more information about the card.
      60c:	be 01       	movw	r22, r28
      60e:	61 56       	subi	r22, 0x61	; 97
      610:	7f 4f       	sbci	r23, 0xFF	; 255
 			{	
-				if (Validate_Card(&card, &str))
+				if (Validate_Card(&card, &str)) //Validates the card read to the card saved.
      612:	ce 01       	movw	r24, r28
      614:	01 96       	adiw	r24, 0x01	; 1
      616:	18 d2       	rcall	.+1072   	; 0xa48 <Validate_Card>
@@ -867,7 +872,7 @@ int main()
      620:	2f 92       	push	r2
      622:	0e 94 ae 0f 	call	0x1f5c	; 0x1f5c <printf>
 				{					
-					printf("Authorized\r\n ID:");
+					printf("Authorized\r\nID:");
      626:	8e 01       	movw	r16, r28
      628:	01 56       	subi	r16, 0x61	; 97
      62a:	1f 4f       	sbci	r17, 0xFF	; 255
@@ -881,20 +886,20 @@ int main()
      63a:	d1 2c       	mov	r13, r1
      63c:	38 01       	movw	r6, r16
      63e:	f8 01       	movw	r30, r16
-	
 	while(1){
+		//The mcu checks to se if a card is found.
 		byte = mfrc522_request(PICC_REQALL,str);		
 		if(byte == CARD_FOUND)
-		{
-			int position = 0;
+		{			
+			int position = 0; //Defines the position in the char array that the byte will be writen to.			
      640:	81 91       	ld	r24, Z+
      642:	8f 01       	movw	r16, r30
      644:	1f 92       	push	r1
-				if (Validate_Card(&card, &str))
 				{					
-					printf("Authorized\r\n ID:");
-					for(byte=0;byte<8;byte++)
+					printf("Authorized\r\nID:");
+					for(byte=0;byte<8;byte++) //Convertes the value of the card to a char array so it can be printed to the LCD/Terminal.
 					{
+						//Takes the last position of where the char array and saves it in the position variable.
 						position += sprintf(&buffer[position], "%i", str[byte]);
      646:	8f 93       	push	r24
      648:	ff 92       	push	r15
@@ -915,12 +920,12 @@ int main()
      666:	ff 92       	push	r15
      668:	ef 92       	push	r14
      66a:	0e 94 ae 0f 	call	0x1f5c	; 0x1f5c <printf>
-			if(byte == CARD_FOUND)
+			if(byte == CARD_FOUND) //The mcu checks again after getting more information about the card.
 			{	
-				if (Validate_Card(&card, &str))
+				if (Validate_Card(&card, &str)) //Validates the card read to the card saved.
 				{					
-					printf("Authorized\r\n ID:");
-					for(byte=0;byte<8;byte++)
+					printf("Authorized\r\nID:");
+					for(byte=0;byte<8;byte++) //Convertes the value of the card to a char array so it can be printed to the LCD/Terminal.
      66e:	0f b6       	in	r0, 0x3f	; 63
      670:	f8 94       	cli
      672:	de bf       	out	0x3e, r29	; 62
@@ -929,6 +934,7 @@ int main()
      678:	0a 15       	cp	r16, r10
      67a:	1b 05       	cpc	r17, r11
 					{
+						//Takes the last position of where the char array and saves it in the position variable.
 						position += sprintf(&buffer[position], "%i", str[byte]);
 						printf("%i", str[byte]);
 					}
@@ -940,7 +946,7 @@ int main()
      682:	80 e0       	ldi	r24, 0x00	; 0
      684:	a9 de       	rcall	.-686    	; 0x3d8 <lcd_gotoxy>
 					lcd_puts("Authorized");
-     686:	8e ec       	ldi	r24, 0xCE	; 206
+     686:	8d ec       	ldi	r24, 0xCD	; 205
      688:	92 e0       	ldi	r25, 0x02	; 2
      68a:	c3 de       	rcall	.-634    	; 0x412 <lcd_puts>
 					lcd_gotoxy(0,1);
@@ -960,7 +966,7 @@ int main()
      6a4:	d0 40       	sbci	r29, 0x00	; 0
      6a6:	b5 de       	rcall	.-662    	; 0x412 <lcd_puts>
      6a8:	12 c0       	rjmp	.+36     	; 0x6ce <main+0x210>
-     6aa:	89 ed       	ldi	r24, 0xD9	; 217
+     6aa:	88 ed       	ldi	r24, 0xD8	; 216
 				}
 				else
 				{
@@ -973,7 +979,7 @@ int main()
      6b6:	80 e0       	ldi	r24, 0x00	; 0
 					lcd_gotoxy(0,0);
      6b8:	8f de       	rcall	.-738    	; 0x3d8 <lcd_gotoxy>
-     6ba:	87 ee       	ldi	r24, 0xE7	; 231
+     6ba:	86 ee       	ldi	r24, 0xE6	; 230
      6bc:	92 e0       	ldi	r25, 0x02	; 2
      6be:	a9 de       	rcall	.-686    	; 0x412 <lcd_puts>
 					lcd_puts("Unauthorized");
@@ -1332,7 +1338,7 @@ uint8_t mfrc522_to_card(uint8_t cmd, uint8_t *send_data, uint8_t send_data_len, 
      82c:	01 70       	andi	r16, 0x01	; 1
      82e:	f0 22       	and	r15, r16
             {   
-				status = CARD_NOT_FOUND;			//??   
+				status = CARD_NOT_FOUND;	//??   
      830:	11 f0       	breq	.+4      	; 0x836 <mfrc522_to_card+0xea>
      832:	c2 e0       	ldi	r28, 0x02	; 2
 	
@@ -1344,7 +1350,7 @@ uint8_t mfrc522_to_card(uint8_t cmd, uint8_t *send_data, uint8_t send_data_len, 
      834:	01 c0       	rjmp	.+2      	; 0x838 <mfrc522_to_card+0xec>
             if (n & irqEn & 0x01)
             {   
-				status = CARD_NOT_FOUND;			//??   
+				status = CARD_NOT_FOUND;	//??   
 			}
 
             if (cmd == Transceive_CMD)

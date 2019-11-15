@@ -663,9 +663,10 @@ END GROUP
  .rodata        0x0080020e        0x8 main.o
  *(.rodata*)
  .rodata.str1.1
-                0x00800216       0xe4 main.o
+                0x00800216       0xe3 main.o
  *(.gnu.linkonce.r*)
                 0x008002fa                . = ALIGN (0x2)
+ *fill*         0x008002f9        0x1 
                 0x008002fa                _edata = .
                 0x008002fa                PROVIDE (__data_end, .)
 

@@ -22,14 +22,11 @@ int main()
 	uint8_t str[MAX_LEN];
 	
 	//Initialize the SPI configuration
-	spi_init();
-	
+	spi_init();	
 	//Initialize display, cursor on
 	lcd_init(LCD_DISP_ON);
-
 	//Clear display and home cursor
-	lcd_clrscr();
-	
+	lcd_clrscr();	
 	//Initialize the RFID reader
 	mfrc522_init();
 	
@@ -43,6 +40,7 @@ int main()
 		case 0x92:
 			printf("MIFARE RC522v2\r\n");
 			printf("Detected\r\n");
+			
 			lcd_gotoxy(0,0);
 			lcd_puts("MIFARE RC522v2");
 			lcd_gotoxy(0,1);
@@ -51,6 +49,7 @@ int main()
 		case 0x91:
 			printf("MIFARE RC522v1\r\n");
 			printf("Detected\r\n");
+			
 			lcd_puts("MIFARE RC522v1");
 			lcd_gotoxy(0,1);
 			lcd_puts("Detected");
@@ -58,6 +57,7 @@ int main()
 		case 0x90:
 			printf("MIFARE RC522v0\r\n");
 			printf("Detected\r\n");
+			
 			lcd_puts("MIFARE RC522v0");
 			lcd_gotoxy(0,1);
 			lcd_puts("Detected");
@@ -65,6 +65,7 @@ int main()
 		case 0x88:
 			printf("RFID-RC522 Clone\r\n");
 			printf("Detected\r\n");
+			
 			lcd_puts("RFID-RC522 Clone");
 			lcd_gotoxy(0,1);
 			lcd_puts("Detected");
@@ -79,16 +80,20 @@ int main()
 		byte = mfrc522_request(PICC_REQALL,str);		
 		if(byte == CARD_FOUND)
 		{			
-			int position = 0; //Defines the position in the char array that the byte will be writen to.			
+			//Defines the position in the char array that the byte will be writen to.			
+			int position = 0; 
 			byte = mfrc522_get_card_serial(str);
-			if(byte == CARD_FOUND) //The mcu checks again after getting more information about the card.
+			//The mcu checks again after getting more information about the card.
+			if(byte == CARD_FOUND) 
 			{	
-				if (Validate_Card(&card, &str)) //Validates the card read to the card saved.
+				//Validates the card read to the card saved.
+				if (Validate_Card(&card, &str)) 
 				{					
 					printf("Authorized\r\nID:");
-					for(byte=0;byte<8;byte++) //Convertes the value of the card to a char array so it can be printed to the LCD/Terminal.
+					//Convertes the value of the card to a char array so it can be printed to the LCD/Terminal.
+					for(byte=0;byte<8;byte++) 
 					{
-						//Takes the last position of where the char array and saves it in the position variable.
+						//Takes the amount of chars written to the char array, and saves it in the position variable.
 						position += sprintf(&buffer[position], "%i", str[byte]);
 						printf("%i", str[byte]);
 					}

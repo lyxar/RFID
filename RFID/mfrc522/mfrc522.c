@@ -54,9 +54,16 @@ void mfrc522_write(uint8_t reg, uint8_t data)
 uint8_t mfrc522_read(uint8_t reg)
 {
 	uint8_t data;	
+	//Enables SS to the RFID
 	ENABLE_CHIP();
+	
+	//Tells the RFID to start from the given register
 	spi_transmit(((reg<<1)&0x7E)|0x80);
+	
+	//Saves the data from the register
 	data = spi_transmit(0x00);
+	
+	//Disables SS to the RFID
 	DISABLE_CHIP();
 	return data;
 }
@@ -70,10 +77,13 @@ uint8_t	mfrc522_request(uint8_t req_mode, uint8_t * tag_type)
 {
 	uint8_t  status;  
 	uint32_t backBits;//The received data bits
-
-	mfrc522_write(BitFramingReg, 0x07);//TxLastBists = BitFramingReg[2..0]	???
+	
+	//9.3.1.14 Datasheet
+	mfrc522_write(BitFramingReg, 0x07);
 	
 	tag_type[0] = req_mode;
+	
+	//Reads the card data if no card is found status will be 0
 	status = mfrc522_to_card(Transceive_CMD, tag_type, 1, tag_type, &backBits);
 
 	if ((status != CARD_FOUND) || (backBits != 0x10))
