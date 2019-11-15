@@ -1,7 +1,7 @@
 # MFRC522 with ATMega2560
 
 ## Introduction
-This solution is designed and tested with MFRC522 RFID module and ATMega2560. The program is design as a key authorization program, it could be used to open doors, checking in to work or anything that could require some sort of authorization.  
+This solution is designed and tested with MFRC522 RFID module and ATMega2560. The program is designed as a key authorization program, it could be used to open doors, checking in to work or anything that could require some sort of authorization.  
 In this solution an LCD display is used to visually see the result of the program, this can be substituted by using the terminal.
 
 <img src="https://i.imgur.com/o60q8iR.jpg"/>
