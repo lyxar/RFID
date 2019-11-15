@@ -9,6 +9,7 @@ In this solution an LCD display is used to visually see the result of the progra
 ### Useful links
 
 <a href="https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf">MFRC522 RFID datasheet</a>
+<a href="https://github.com/asif-mahmud/MIFARE-RFID-with-AVR">Original creator</a>
 
 ## Component list
 
